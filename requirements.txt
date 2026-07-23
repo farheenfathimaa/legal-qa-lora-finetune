@@ -1,0 +1,13 @@
+transformers
+peft
+bitsandbytes
+accelerate
+datasets
+mlflow
+fastapi
+uvicorn
+evaluate
+torch
+pydantic
+rouge_score
+pyyaml

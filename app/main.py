@@ -30,12 +30,26 @@ def load_model():
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
             
+        try:
+            from transformers import BitsAndBytesConfig
+            import bitsandbytes
+            has_bnb = True
+        except ImportError:
+            has_bnb = False
+            
         print("Loading base model...")
-        base_model = AutoModelForCausalLM.from_pretrained(
-            config["model_name"],
-            load_in_4bit=True,
-            device_map="auto"
-        )
+        if has_bnb and torch.cuda.is_available():
+            base_model = AutoModelForCausalLM.from_pretrained(
+                config["model_name"],
+                load_in_4bit=True,
+                device_map="auto"
+            )
+        else:
+            print("WARNING: GPU/bitsandbytes not found. Loading in CPU standard mode.")
+            base_model = AutoModelForCausalLM.from_pretrained(
+                config["model_name"],
+                device_map="cpu"
+            )
         
         tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
         if tokenizer.pad_token is None:

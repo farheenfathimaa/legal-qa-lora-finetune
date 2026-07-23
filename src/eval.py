@@ -1,5 +1,6 @@
 import json
 import yaml
+import os
 import torch
 import evaluate
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -7,7 +8,10 @@ from peft import PeftModel
 from data_loader import load_and_preprocess_data
 
 def evaluate_models():
-    with open("../configs/lora_config.yaml", "r") as f:
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    config_path = os.path.join(base_dir, "configs/lora_config.yaml")
+
+    with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
     # 1. Load Tokenizer
@@ -16,8 +20,9 @@ def evaluate_models():
         tokenizer.pad_token = tokenizer.eos_token
         
     # 2. Get Test Data
+    dataset_full_path = os.path.join(base_dir, config["dataset_path"])
     _, val_dataset = load_and_preprocess_data(
-        "../" + config["dataset_path"], 
+        dataset_full_path, 
         tokenizer, 
         max_length=config["max_seq_length"]
     )
